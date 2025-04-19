@@ -116,11 +116,8 @@ func main() {
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./static/home.html")
 	})
-	fmt.Println("after fixing static pages ")
 	// Serve static files (like CSS/JS/images)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
-
-	fmt.Println("after fixing static context prefixed ")
 
 	fmt.Println("Registered routes:")
 	http.DefaultServeMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
