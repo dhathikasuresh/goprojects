@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fetch Certificate</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 40px;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 250px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .certificate-details {
+      margin-top: 30px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Get Certificate Details</h1>
+  <input type="text" id="certId" placeholder="Enter Certificate ID" />
+  <button onclick="fetchCertificate()">Fetch Certificate</button>
+
+  <div id="certificate" class="certificate-details" style="display: none;">
+    <h3>Certificate Details</h3>
+    <p><strong>ID:</strong> <span id="cert_id"></span></p>
+    <p><strong>Lab Name:</strong> <span id="labname"></span></p>
+    <p><strong>Medicine Name:</strong> <span id="medicinename"></span></p>
+    <p><strong>Country:</strong> <span id="country"></span></p>
+    <p><strong>No. of Participants:</strong> <span id="participants"></span></p>
+    <p><strong>Category:</strong> <span id="category"></span></p>
+    <p><strong>Age Group:</strong> <span id="age"></span></p>
+    <p><strong>Placebo:</strong> <span id="placebo"></span></p>
+    <p><strong>Currency:</strong> <span id="currency"></span></p>
+    <p><strong>Premium Amount:</strong> <span id="premium"></span></p>
+
+    <button onclick="downloadPDF()">Download PDF</button>
+  </div>
+
+  <script>
+    let certData = {};
+
+    function fetchCertificate() {
+      const id = document.getElementById("certId").value.trim();
+      if (!id) {
+        alert("Please enter a certificate ID");
+        return;
+      }
+
+      fetch(`http://localhost:8080/worldcert/getcertbyid/${id}`)
+        .then(response => {
+          if (!response.ok) throw new Error("Certificate not found");
+          return response.json();
+        })
+        .then(data => {
+          certData = data;
+
+          document.getElementById("certificate").style.display = "block";
+          document.getElementById("cert_id").textContent = data.id;
+          document.getElementById("labname").textContent = data.labname;
+          document.getElementById("medicinename").textContent = data.medicinename;
+          document.getElementById("country").textContent = data.country;
+          document.getElementById("participants").textContent = data.noOfParticipants;
+          document.getElementById("category").textContent = data.category;
+          document.getElementById("age").textContent = data.age;
+          document.getElementById("placebo").textContent = data.placebo;
+          document.getElementById("currency").textContent = data.currency;
+          document.getElementById("premium").textContent = data.premiumamount;
+        })
+        .catch(error => {
+          alert("Error fetching certificate: " + error.message);
+          document.getElementById("certificate").style.display = "none";
+        });
+    }
+
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(14);
+      doc.text("Certificate Details", 20, 20);
+      const lines = [
+        `ID: ${certData.id}`,
+        `Lab Name: ${certData.labname}`,
+        `Medicine Name: ${certData.medicinename}`,
+        `Country: ${certData.country}`,
+        `No. of Participants: ${certData.noOfParticipants}`,
+        `Category: ${certData.category}`,
+        `Age Group: ${certData.age}`,
+        `Placebo: ${certData.placebo}`,
+        `Currency: ${certData.currency}`,
+        `Premium Amount: ${certData.premiumamount}`
+      ];
+
+      let y = 30;
+      lines.forEach(line => {
+        doc.text(line, 20, y);
+        y += 10;
+      });
+
+      doc.save(`certificate_${certData.id}.pdf`);
+    }
+  </script>
+</body>
+</html>

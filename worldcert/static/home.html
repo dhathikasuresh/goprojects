@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Cert JSON</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      height: 100vh;
+    }
+
+    .form-container {
+      background: #ffffff;
+      padding: 30px;
+      margin-top: 50px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #28a745;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    pre {
+      background-color: #f4f4f4;
+      padding: 1em;
+      margin-top: 20px;
+      border-radius: 8px;
+      overflow: auto;
+      max-height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Create Cert</h2>
+    <form id="certForm">
+      <label>Lab Name:
+        <input type="text" name="labname" value="SumiyaLabs" required>
+      </label>
+
+      <label>Medicine Name:
+        <input type="text" name="medicinename" value="Paracetomol" required>
+      </label>
+
+      <label>Country Code:
+        <input type="text" name="country" value="CA" required>
+      </label>
+
+      <label>No of Participants:
+        <input type="text" name="noOfParticipants" value="100" required>
+      </label>
+
+      <label>Category:
+        <input type="text" name="category" value="Painkiller" required>
+      </label>
+
+      <label>Age Group:
+        <input type="text" name="age" value="30-40" required>
+      </label>
+
+      <label>Placebo:
+        <input type="number" name="placebo" value="2" required>
+      </label>
+
+      <label>Currency Type:
+        <input type="text" name="currency" value="US" required>
+      </label>
+
+      <label>Premium Amount:
+        <input type="number" step="0.01" name="premiumamount" value="100.00" required>
+      </label>
+
+      <button type="submit">Create FHCT Policy</button>
+    </form>
+
+    <pre id="responseBox"></pre>
+  </div>
+
+  <script>
+    document.getElementById('certForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      alert ("Hello world!");
+      const form = event.target;
+      const data = {
+        labname: form.labname.value,
+        medicinename: form.medicinename.value,
+        country: form.country.value,
+        noOfParticipants: form.noOfParticipants.value,
+        category: form.category.value,
+        age: form.age.value,
+        placebo: parseInt(form.placebo.value),
+        currency: form.currency.value,
+        premiumamount: parseFloat(form.premiumamount.value)
+      };
+
+      fetch("http://localhost:8080/worldcert/createcert", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(data)
+})
+  .then(res => {
+    if (res.ok) {
+      // Redirect to success.html
+      window.location.href = "static/success.html";
+    } else {
+      return res.text().then(text => {
+        document.getElementById("responseBox").textContent =
+          "❌ Server Error:\n\n" + text;
+      });
+    }
+  })
+  .catch(err => {
+    document.getElementById("responseBox").textContent =
+      "❌ Network Error:\n\n" + err.toString();
+        });
+    });
+  </script>
+</body>
+</html>
